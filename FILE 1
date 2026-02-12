@@ -1,1 +1,26 @@
+const http = require('http');
+const httpProxy = require('http-proxy');
 
+// Create the proxy instance with high-performance settings
+const proxy = httpProxy.createProxyServer({
+  changeOrigin: true,   // Required for HTTPS targets
+  autoRewrite: true,    // Fixes 'Location' headers in redirects
+  followRedirects: true,
+  secure: false         // Allows proxying even if target has SSL issues
+});
+
+const server = http.createServer((req, res) => {
+  // Replace this with any HTTPS site you want to host
+  const targetSite = 'https://www.wikipedia.org';
+
+  proxy.web(req, res, { target: targetSite }, (err) => {
+    console.error('Proxy Error:', err);
+    res.writeHead(500);
+    res.end('Proxy encountered an error.');
+  });
+});
+
+// Port 8080 is the standard for GitHub Codespaces
+server.listen(8080, () => {
+  console.log('Base proxy is running on port 8080');
+});
